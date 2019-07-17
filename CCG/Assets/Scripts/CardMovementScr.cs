@@ -15,6 +15,8 @@ public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     GameObject TempCardGO;
     public bool IsDraggable;
 
+    int startID;
+
     void Awake()
     {
         MainCamera = Camera.allCameras[0];
@@ -30,13 +32,15 @@ public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         IsDraggable = GameManagerScr.Instance.IsPlayerTurn &&
                       (
                       (DefaultParent.GetComponent<DropPlaceScr>().Type == FieldType.SELF_HAND &&
-                       GameManagerScr.Instance.PlayerMana >= CC.Card.Manacost) ||
+                       GameManagerScr.Instance.CurrentGame.Player.Mana >= CC.Card.Manacost) ||
                       (DefaultParent.GetComponent<DropPlaceScr>().Type == FieldType.SELF_FIELD &&
                        CC.Card.CanAttack)
                       );
             
         if (!IsDraggable)
             return;
+
+        startID = transform.GetSiblingIndex();
 
         if (CC.Card.IsSpell || CC.Card.CanAttack)
             GameManagerScr.Instance.HighlightTargets(CC, true);
@@ -98,6 +102,9 @@ public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             }
         }
 
+        if (TempCardGO.transform.parent == DefaultParent)
+            newIndex = startID;
+
         TempCardGO.transform.SetSiblingIndex(newIndex);
     }
 
@@ -118,7 +125,8 @@ public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         Transform parent = transform.parent;
         int index = transform.GetSiblingIndex();
 
-        transform.parent.GetComponent<HorizontalLayoutGroup>().enabled = false;
+        if (transform.parent.GetComponent<HorizontalLayoutGroup>())
+            transform.parent.GetComponent<HorizontalLayoutGroup>().enabled = false;
 
         transform.SetParent(GameObject.Find("Canvas").transform);
 
@@ -132,6 +140,8 @@ public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         transform.SetParent(parent);
         transform.SetSiblingIndex(index);
-        transform.parent.GetComponent<HorizontalLayoutGroup>().enabled = true;
+
+        if (transform.parent.GetComponent<HorizontalLayoutGroup>())
+            transform.parent.GetComponent<HorizontalLayoutGroup>().enabled = true;
     }
 }

@@ -24,7 +24,7 @@ public class DropPlaceScr : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
         if (card &&
             GameManagerScr.Instance.IsPlayerTurn && 
-            GameManagerScr.Instance.PlayerMana >= card.Card.Manacost &&
+            GameManagerScr.Instance.CurrentGame.Player.Mana >= card.Card.Manacost &&
             !card.Card.IsPlaced)
         {
             if (!card.Card.IsSpell)
